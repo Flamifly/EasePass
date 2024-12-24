@@ -105,6 +105,19 @@ namespace EasePass.Views
             AppSettings.DoubleTapToCopy = doubleTapToCopySW.IsOn;
         }
 
+        private async void ActivateSecondFactor_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (activateSecondFactor.IsOn)
+            {
+                secondFactorTokenHead.Visibility = Visibility.Visible;
+                secondFactorToken.Text = await PasswordHelper.GeneratePassword();
+            }
+            else
+            {
+                secondFactorTokenHead.Visibility = Visibility.Collapsed;
+            }
+        }
+
         private void showIcons_Toggled(object sender, RoutedEventArgs e)
         {
             if (blockEventsOnloadSettings)

@@ -65,6 +65,12 @@
             </Expander>
 
             <controls:SettingsItemSeparator Header="Security" x:Uid="View_SettingsPage_HeadlineSecurity"/>
+            <controls:SettingsControl x:Uid="View_SettingsPage_SecondFactor" Header="Activate Second-Factor Authentication" ToolTipService.ToolTip="Enables the Second-Factor Authentication">
+                <ToggleSwitch x:Name="activateSecondFactor" Toggled="ActivateSecondFactor_Toggled"/>
+            </controls:SettingsControl>
+            <controls:SettingsControl x:Uid="View_SettingsPage_SecondFactorToken" x:Name="secondFactorTokenHead" Header="Token for Second-Factor Authentication (Shown Once!)" ToolTipService.ToolTip="The Token for the Second-Factor Authentication. This Token will be shown once!" Visibility="Collapsed">
+                <TextBlock x:Name="secondFactorToken"/>
+            </controls:SettingsControl>
             <controls:SettingsControl Header="Inactivity Logout" x:Uid="View_SettingsPage_InactivityLogout">
                 <NumberBox x:Uid="View_SettingsPage_InactivityLogoutTime" SpinButtonPlacementMode="Inline" ValueChanged="InactivityLogoutTime_ValueChanged" Maximum="1000" Minimum="1" MinWidth="150" Margin="5" x:Name="inactivityLogoutTime" PlaceholderText="Logout time" Header="Minutes"/>
             </controls:SettingsControl>
