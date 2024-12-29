@@ -922,7 +922,7 @@
     <value>Ein- oder ausblenden der Symbole in der Passwort Liste</value>
   </data>
   <data name="View_SettingsPage_VerifyPWLeaked.Header" xml:space="preserve">
-    <value>Stellen Sie sicher, dass das Kennwort nicht geleakt wurde</value>
+    <value>Stellen Sie sicher, dass das Passwort nicht geleakt wurde</value>
   </data>
   <data name="CopyPasswordBox_TT_Copy.ToolTipService.ToolTip" xml:space="preserve">
     <value>Kopieren</value>
@@ -1061,5 +1061,11 @@
   </data>
   <data name="View_RegisterPage_CreateAdvancedDB.Content" xml:space="preserve">
     <value>Erweiterte Optionen</value>
+  </data>
+  <data name="View_PasswordPage_Flyout_ExportNewPassword/Text" xml:space="preserve">
+    <value>Exportieren (anderes Passwort)</value>
+  </data>
+  <data name="View_SettingsPage_ResetPopularityCounter.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Setzt den Beliebtheitszähler zurück, der zählt, wie oft ein Passwort verwendet wurde.</value>
   </data>
 </root>
