@@ -726,6 +726,9 @@
   <data name="View_ExtensionPage_Store.Text" xml:space="preserve">
     <value>Store:</value>
   </data>
+  <data name="View_ExtensionPage_StoreHint.Text" xml:space="preserve">
+    <value>Due to the Microsoft Store requirements, we cannot offer direct download of plugins. To use plugins anyway, please follow the steps on our website.</value>
+  </data>
   <data name="View_ExtensionPage_Uninstall.Text" xml:space="preserve">
     <value>Uninstall</value>
   </data>
@@ -872,6 +875,9 @@
   </data>
   <data name="View_PasswordPage_Flyout_Export.Text" xml:space="preserve">
     <value>Export</value>
+  </data>
+  <data name="View_PasswordPage_Flyout_ExportNewPassword/Text" xml:space="preserve">
+    <value>Export (diff. password)</value>
   </data>
   <data name="View_PasswordPage_Searchbox.PlaceholderText" xml:space="preserve">
     <value>Search</value>
@@ -1046,6 +1052,9 @@
   </data>
   <data name="View_SettingsPage_ResetPopularityCounter.Content" xml:space="preserve">
     <value>Reset</value>
+  </data>
+  <data name="View_SettingsPage_ResetPopularityCounter.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Resets the counter that counts the clicks to sort by popularity.</value>
   </data>
   <data name="View_SettingsPage_RestartToApply.Text" xml:space="preserve">
     <value>To apply please restart the app</value>

@@ -28,28 +28,31 @@ namespace EasePass.Helper
         public async static Task<(PasswordManagerItem[] Items, bool Override)> ManageImport(IPasswordImporter importer)
         {
             ImportPasswordsDialog dlg = new ImportPasswordsDialog();
-            try
+
+            dlg.ShowProgressBar();
+
+            var loadingTask = Task.Run(() =>
             {
-                PasswordItem[] items = null;
-                Task.Run(new Action(() =>
-                {
-                    items = importer.ImportPasswords();
-                })).GetAwaiter().OnCompleted(
-                    new Action(() =>
-                    {
-                        if (items == null)
-                            dlg.SetPageMessage(ImportPasswordsDialog.MsgType.Error);
-                        else if (items.Length == 0)
-                            dlg.SetPageMessage(ImportPasswordsDialog.MsgType.NoPasswords);
-                        else
-                            dlg.SetPagePasswords(items.Select(x => ToPMI(x)).ToArray());
-                    }));
-            }
-            catch
-            {
-                dlg.SetPageMessage(ImportPasswordsDialog.MsgType.Error);
-            }
-            return await dlg.ShowAsync(true);
+                if (importer is IFilePickerInjectable fpi)
+                    fpi.FilePicker = FilePicker;
+                var items = importer.ImportPasswords();
+                return items.Select(x => ToPMI(x)).ToArray();
+            });
+
+            var showDialogTask = dlg.ShowAsync(true);
+
+            var passwordItems = await loadingTask;
+            dlg.SetPagePasswords(passwordItems);
+
+            return await showDialogTask;
+        }
+
+        private static string FilePicker(string[] extensions)
+        {
+            var res = Task.Run<(string path, bool success)>(async () => await FilePickerHelper.PickOpenFile(extensions)).Result;
+            if (res.success)
+                return res.path;
+            return "";
         }
 
         private static PasswordManagerItem ToPMI(PasswordItem item)
