@@ -46,8 +46,7 @@ namespace EasePass.Dialogs
             if (res == ContentDialogResult.Primary)
             {
                 var eval = page.Evaluate();
-                var path = Path.Combine(eval.path, eval.databaseName + ".epdb");
-                return Database.CreateNewDatabase(path, eval.masterPassword);
+                return Database.CreateNewDatabase(eval.path, eval.masterPassword);
             }
             return null;
         }
@@ -57,23 +56,33 @@ namespace EasePass.Dialogs
             if (page == null || args.Result != ContentDialogResult.Primary)
                 return;
 
-            //cancel on password mismatch:
+
             if (!page.PasswordsMatch)
             {
                 InfoMessages.PasswordsDoNotMatch(page.InfoMessageParent);
                 args.Cancel = true;
+                return;
             }
 
             if (!page.PathValid)
             {
                 InfoMessages.InvalidDatabasePath(page.InfoMessageParent);
                 args.Cancel = true;
+                return;
             }
 
             if(!page.PasswordLengthCorrect)
             {
                 InfoMessages.PasswordTooShort(page.InfoMessageParent);
                 args.Cancel = true;
+                return;
+            }
+
+            if (page.PathValid && page.PathAlreadyExists)
+            {
+                InfoMessages.DatabaseWithThatNameAlreadyExists(page.InfoMessageParent);
+                args.Cancel = true;
+                return;
             }
         }
     }

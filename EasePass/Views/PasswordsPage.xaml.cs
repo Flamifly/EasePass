@@ -231,6 +231,16 @@ namespace EasePass.Views
         {
             StoreGridSplitterValue();
         }
+        private async Task CopyTOTPToken(PasswordManagerItem pwItem)
+        {
+            if (pwItem.Secret == null)
+                return;
+
+            var generated = await TOTPTokenUpdater.generateCurrent(pwItem);
+            ClipboardHelper.Copy(generated.Replace(" ", ""));
+        }
+
+
         private async void DeletePasswordItem_Click(object sender, RoutedEventArgs e)
         {
             if (passwordItemListView.SelectedItems.Count == 1)
@@ -269,7 +279,13 @@ namespace EasePass.Views
             {
                 SelectedItem = pwItem;
                 SelectedItem.Clicks.Add(DateTime.Now.ToString("d").Replace("/", "."));
+                pwTB.ShowPassword = false;
                 Update2FATimer();
+
+                if(pwItem.Secret == null)
+                {
+
+                }
             }
         }
         private void PasswordItemListView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
@@ -390,11 +406,12 @@ namespace EasePass.Views
             await DeletePasswordItem((sender as MenuFlyoutItem)?.Tag as PasswordManagerItem);
         }
         private async void RightclickedItem_Edit_Click(object sender, RoutedEventArgs e) => await EditPasswordItem((sender as MenuFlyoutItem)?.Tag as PasswordManagerItem);
-        private async void RightclickedItem_CopyTOTPToken_Click(object sender, RoutedEventArgs e) => ClipboardHelper.Copy((await TOTPTokenUpdater.generateCurrent((sender as MenuFlyoutItem)?.Tag as PasswordManagerItem)).Replace(" ", ""));
+        private async void RightclickedItem_CopyTOTPToken_Click(object sender, RoutedEventArgs e)
+        {
+            await CopyTOTPToken((sender as MenuFlyoutItem)?.Tag as PasswordManagerItem);
+        }
         private async void RightclickedItem_ExportSelected_Click(object sender, RoutedEventArgs e)
         {
-            //single item was right clicked, does not have to be the selected item:
-
             if (passwordItemListView.SelectedItems.Count > 1)
             {
                 //multiple items are selected => export them
@@ -403,6 +420,7 @@ namespace EasePass.Views
                 return;
             }
 
+            //single item was right clicked, does not have to be the selected item:
             await ExportPasswordsHelper.Export(Database.LoadedInstance, new ObservableCollection<PasswordManagerItem>() { (sender as MenuFlyoutItem)?.Tag as PasswordManagerItem });
         }
         private async void RightclickedItem_ExportDiffPassword_Click(object sender, RoutedEventArgs e)
@@ -411,7 +429,6 @@ namespace EasePass.Views
             if (dialog.Password == null)
                 return;
 
-            //single item was right clicked, does not have to be the selected item:
             if (passwordItemListView.SelectedItems.Count > 1)
             {
                 //multiple items are selected => export them
@@ -420,6 +437,7 @@ namespace EasePass.Views
                 return;
             }
 
+            //single item was right clicked, does not have to be the selected item:
             await ExportPasswordsHelper.Export(Database.LoadedInstance, new ObservableCollection<PasswordManagerItem>() { (sender as MenuFlyoutItem)?.Tag as PasswordManagerItem }, dialog.Password, false);
         }
 
@@ -431,17 +449,10 @@ namespace EasePass.Views
         {
             DatabaseDragDropHelper.DragOver(e);
         }
-
-        private void OOBE_HyperlinkSettings(Microsoft.UI.Xaml.Documents.Hyperlink sender, Microsoft.UI.Xaml.Documents.HyperlinkClickEventArgs args)
-        {
-            NavigationHelper.ToSettings(this);
-        }
-
-        private void OOBE_HyperlinkManageDB(Microsoft.UI.Xaml.Documents.Hyperlink sender, Microsoft.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+        private void OOBE_HyperlinkManageDB(object sender, RoutedEventArgs e)
         {
             NavigationHelper.ToManageDB();
         }
-
         private void LoadTemporaryDatabase_Click(object sender, RoutedEventArgs e)
         {
             TemporaryDatabaseHelper.LoadImportedDatabase();

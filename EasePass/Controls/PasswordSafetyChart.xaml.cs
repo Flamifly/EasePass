@@ -37,7 +37,7 @@ namespace EasePass.Controls
             "Upper case letters".Localized("PW_SafetyChart_UpperCaseLetters/Text"),
             "Password length".Localized("PW_SafetyChart_PWLength/Text"),
             "Leaked or exploited".Localized("PW_SafetyChart_LeakedExploited/Text"),
-            "Punctuation".Localized("PW_SafetyChart_Punctation/Text"),
+            "Punctuation".Localized("PW_SafetyChart_SpecialChars/Text"),
             "Digits".Localized("PW_SafetyChart_Digits/Text"),
             "Predictability".Localized("PW_SafetyChart_Predictability/Text"),
             "Seen before".Localized("PW_SafetyChart_Seenbefore/Text")
@@ -49,7 +49,7 @@ namespace EasePass.Controls
             "Contains Upper case:".Localized("PW_SafetyChart_Info_UpperCase/Text"),
             "Passwordlength:".Localized("PW_SafetyChart_Info_Passwordlength/Text"),
             "Leaked or exploited:".Localized("PW_SafetyChart_Info_LeakedExploited/Text"),
-            "Contains Punctuation:".Localized("PW_SafetyChart_Info_Punctuation/Text"),
+            "Contains Punctuation:".Localized("PW_SafetyChart_Info_SpecialChars/Text"),
             "Contains Digits:".Localized("PW_SafetyChart_Info_Digits/Text"),
             "Predictability:".Localized("PW_SafetyChart_Info_Predictability/Text"),
             "Seen before:".Localized("PW_SafetyChart_Info_SeenBefore/Text")
@@ -61,7 +61,7 @@ namespace EasePass.Controls
             new string[]{ "True".Localized("PW_SafetyChart_Info_UpperCase_Positive/Text"), "False".Localized("PW_SafetyChart_Info_UpperCase_Negative/Text") },
             new string[]{ "Meets Minimum".Localized("PW_SafetyChart_Info_Passwordlength_Positive/Text"), "Doesn't meet Minimum".Localized("PW_SafetyChart_Info_Passwordlength_Negative/Text") },
             new string[]{ "False".Localized("PW_SafetyChart_Info_LeakedExploited_Positive/Text"), "True".Localized("PW_SafetyChart_Info_LeakedExploited_Negative/Text") },
-            new string[]{ "True".Localized("PW_SafetyChart_Info_Punctuation_Positive/Text"), "False".Localized("PW_SafetyChart_Info_Punctuation_Negative/Text") },
+            new string[]{ "True".Localized("PW_SafetyChart_Info_SpecialChars_Positive/Text"), "False".Localized("PW_SafetyChart_Info_SpecialChars_Negative/Text") },
             new string[]{ "True".Localized("PW_SafetyChart_Info_Digits_Positive/Text"), "False".Localized("PW_SafetyChart_Info_Digits_Negative/Text") },
             new string[]{ "Low".Localized("PW_SafetyChart_Info_Predictability_Positive/Text"), "High".Localized("PW_SafetyChart_Info_Predictability_Negative/Text") },
             new string[]{ "False".Localized("PW_SafetyChart_Info_SeenBefore_Positive/Text"), "True".Localized("PW_SafetyChart_Info_SeenBefore_Negative/Text") },
@@ -84,7 +84,7 @@ namespace EasePass.Controls
             paths[1] = path2; //upper case
             paths[2] = path3; //length
             paths[3] = path4; //leaked
-            paths[4] = path5; //punctation
+            paths[4] = path5; //special chars
             paths[5] = path6; //digits
             paths[6] = path7; //predictability
             paths[7] = path8; //seen before
@@ -108,11 +108,6 @@ namespace EasePass.Controls
             info_right.Height = chartHeight;
         }
 
-        private async Task<bool> CheckPwned(string password)
-        {
-            return await PasswordHelper.IsPwned(password) ?? false;
-        }
-
         private bool CheckPasswordAlreadyUsed(string password, bool existingSingleTime)
         {
             if (Database.LoadedInstance.Items == null)
@@ -126,7 +121,7 @@ namespace EasePass.Controls
             return amount < (existingSingleTime ? 2 : 1);
         }
 
-        public async Task EvaluatePassword(string password, bool existingSingleTime = false)
+        public void EvaluatePassword(string password, bool existingSingleTime = false)
         {
             if (password.Length == 0)
             {
@@ -138,12 +133,12 @@ namespace EasePass.Controls
                 RaisePropertyChanged("ToString");
                 return;
             }
-
+            
             bool[] res = PasswordHelper.EvaluatePassword(password);
             checks[0] = res[0];
             checks[1] = res[1];
             checks[2] = res[2];
-            checks[3] = AppSettings.DisableLeakedPasswords ? null : !await CheckPwned(password);
+            checks[3] = AppSettings.DisableLeakedPasswords ? null : !PasswordHelper.IsPwned(password);
             checks[4] = res[3];
             checks[5] = res[4];
             checks[6] = res[5];
