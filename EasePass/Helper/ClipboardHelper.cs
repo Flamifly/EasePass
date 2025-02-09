@@ -26,21 +26,24 @@ namespace EasePass.Helper
     {
         static Queue<ClipboardHistoryItem> history = new Queue<ClipboardHistoryItem>();
 
-        public static void Copy(string text, bool removeFromClipboard = false)
+        public static void Copy(ReadOnlySpan<char> text, bool removeFromClipboard = false)
         {
-            var package = new DataPackage();
-            package.SetText(text);
+            string temp = text.ToString();
+            DataPackage package = new DataPackage();
+            package.SetText(temp);
             Clipboard.SetContent(package);
 
             //remove from the clipboard:
             if (removeFromClipboard)
-                RemoveLastClipboardItem(text);
+            {
+                RemoveLastClipboardItem(temp);
+            }
         }
 
         public static void RemoveLastClipboardItem(string text)
         {
             // Needs to be a short delay here
-            var dp = new DispatcherTimer();
+            DispatcherTimer dp = new DispatcherTimer();
             dp.Interval = new TimeSpan(0, 0, 0, 0, 1000);
             dp.Start();
             dp.Tick += async (s, e) =>

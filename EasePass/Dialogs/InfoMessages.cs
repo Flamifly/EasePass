@@ -127,11 +127,15 @@ namespace EasePass.Dialogs
             "InfoMessages_PrinterNotSelected",
             InfoBarSeverity.Error, 15
         );
-        public static void PrinterItemSkipped(string name) => new InfoBar().Show(
-            "Password skipped".Localized("InfoMessages_PrinterItemSkipped/Headline"),
-            $"The service \"{name}\" was skipped, because it doesn't fit into the page.".Localized("InfoMessages_PrinterItemSkipped/Text").Replace("{name}", name),
-            InfoBarSeverity.Error, 15
-        );
+        public static void PrinterItemSkipped(ReadOnlySpan<char> name)
+        {
+            string temp = name.ToString();
+            new InfoBar().Show(
+                "Password skipped".Localized("InfoMessages_PrinterItemSkipped/Headline"),
+                $"The service \"{temp}\" was skipped, because it doesn't fit into the page.".Localized("InfoMessages_PrinterItemSkipped/Text").Replace("{name}", temp),
+                InfoBarSeverity.Error, 15
+            );
+        }
         public static void CouldNotGetExtensions(string exception) => new InfoBar().Show(
             "Could not get Plugins".Localized("InfoMessages_CouldNotGetExtensions/Headline"),
             "Could not get the plugins from the Server:\n".Localized("InfoMessages_CouldNotGetExtensions/Text") + exception,

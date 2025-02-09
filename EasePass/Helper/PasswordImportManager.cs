@@ -58,16 +58,16 @@ namespace EasePass.Helper
         private static PasswordManagerItem ToPMI(PasswordItem item)
         {
             PasswordManagerItem pmi = new PasswordManagerItem();
-            pmi.DisplayName = item.DisplayName;
-            pmi.Email = item.EMail;
-            pmi.Username = item.UserName;
-            pmi.Password = item.Password;
-            pmi.Website = item.Website;
+            pmi.DisplayName = item.DisplayName.ToCharArray();
+            pmi.Email = item.EMail.ToCharArray();
+            pmi.Username = item.UserName.ToCharArray();
+            pmi.Password = item.Password.ToCharArray();
+            pmi.Website = item.Website.ToCharArray();
             pmi.Notes = item.Notes;
-            pmi.Secret = item.TOTPSecret;
-            pmi.Interval = Convert.ToString(item.TOTPInterval);
-            pmi.Digits = Convert.ToString(item.TOTPDigits);
-            pmi.Algorithm = item.TOTPAlgorithm.ToString();
+            pmi.Secret = item.TOTPSecret.ToCharArray();
+            pmi.Interval = item.TOTPInterval;
+            pmi.Digits = item.TOTPDigits;
+            pmi.Algorithm =   Enum.Parse<HashMode>(item.TOTPAlgorithm.ToString());
 
             return pmi;
         }

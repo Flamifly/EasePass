@@ -73,25 +73,11 @@ namespace EasePass.Helper
         #endregion
 
         #region Encrypt
-        public static byte[] EncryptStringAES(string plainText, string password, string salt)
-        {
-            return EncryptStringAES(plainText, password.ConvertToSecureString(), salt);
-        }
-        public static byte[] EncryptStringAES(string plainText, SecureString password, string salt = "")
-        {
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = GetCryptionKey(password, salt);
-                aesAlg.GenerateIV();
-
-                return EncryptInternal(aesAlg, plainText);
-            }
-        }
-
         public static byte[] EncryptStringAES(string plainText, byte[] password, string salt = "")
         {
             using (Aes aesAlg = Aes.Create())
             {
+                // we need to call the obsolete Methode in the case that EasePass needs to load an old Database
                 aesAlg.Key = password.Length == 32 ? password : GetCryptionKey(password, salt);
                 aesAlg.GenerateIV();
 
@@ -116,6 +102,7 @@ namespace EasePass.Helper
         #endregion
 
         #region Derive
+        [System.Obsolete("It not used anymore because it uses a SHA1")]
         public static byte[] DeriveEncryptionKey(byte[] password, byte[] salt, int keySizeInBytes, int iterations)
         {
             using (Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations))
@@ -123,6 +110,7 @@ namespace EasePass.Helper
                 return pbkdf2.GetBytes(keySizeInBytes);
             }
         }
+        [System.Obsolete("It not used anymore because it uses a SHA1")]
         public static byte[] DeriveEncryptionKey(SecureString password, byte[] salt, int keySizeInBytes, int iterations)
         {
             using (Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password.ToBytes(), salt, iterations))
@@ -133,6 +121,7 @@ namespace EasePass.Helper
         #endregion
 
         #region GetCryptionKey
+        [System.Obsolete("It not used anymore because it uses a SHA1")]
         private static byte[] GetCryptionKey(byte[] pw, string salt = "")
         {
             byte[] saltFromDatabase = Encoding.UTF8.GetBytes(salt.Length == 0 ? SettingsManager.GetSettings(AppSettingsValues.pSalt) : "");
@@ -141,6 +130,7 @@ namespace EasePass.Helper
 
             return DeriveEncryptionKey(pw, saltFromDatabase, keySizeInBytes, iterations);
         }
+        [System.Obsolete("It not used anymore because it uses a SHA1")]
         private static byte[] GetCryptionKey(SecureString pw, string salt = "")
         {
             byte[] saltFromDatabase = Encoding.UTF8.GetBytes(salt.Length == 0 ? SettingsManager.GetSettings(AppSettingsValues.pSalt) : "");

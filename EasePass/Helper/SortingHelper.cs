@@ -16,17 +16,15 @@ copies or substantial portions of the Software.
 
 using EasePass.Models;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Intrinsics.X86;
 
 namespace EasePass.Helper
 {
     internal class SortingHelper
     {
-        private static int SortBy(string item1, string item2)
+        private static int SortBy(ReadOnlySpan<char> item1, ReadOnlySpan<char> item2)
         {
-            return (item1 ?? "").CompareTo(item2 ?? "");
+            return (item1).CompareTo(item2, StringComparison.CurrentCulture);
         }
         private static int CountPopularityLast30Days(PasswordManagerItem pmi, DateTime now, int daysDeadline = 30)
         {
@@ -41,7 +39,9 @@ namespace EasePass.Helper
                     );
 
                 if (now - date < TimeSpan.FromDays(daysDeadline))
+                {
                     pmi1Count++;
+                }
             }
 
             return pmi1Count;
@@ -68,7 +68,8 @@ namespace EasePass.Helper
         {
             int comp = -pmi1.Clicks.Count.CompareTo(pmi2.Clicks.Count);
             if (comp == 0)
-                return (pmi1.DisplayName ?? "").CompareTo(pmi2.DisplayName ?? "");
+                return ((ReadOnlySpan<char>)pmi1.DisplayName).CompareTo((ReadOnlySpan<char>)pmi2.DisplayName, StringComparison.CurrentCulture);
+
             return comp;
         }
         public static int ByPopularLast30Days(PasswordManagerItem pmi1, PasswordManagerItem pmi2)
@@ -81,7 +82,7 @@ namespace EasePass.Helper
 
             int comp = -pmi1Count.CompareTo(pmi2Count);
             if (comp == 0)
-                return (pmi1.DisplayName ?? "").CompareTo(pmi2.DisplayName ?? "");
+                return ((ReadOnlySpan<char>)pmi1.DisplayName).CompareTo((ReadOnlySpan<char>)pmi2.DisplayName, StringComparison.CurrentCulture);
             return comp;
         }
 

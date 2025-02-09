@@ -15,10 +15,12 @@ copies or substantial portions of the Software.
 */
 
 using EasePass.Dialogs;
+using EasePass.Extensions;
 using EasePass.Helper;
 using EasePass.Models;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using System;
 using Windows.UI;
 
 namespace EasePass.Views
@@ -49,24 +51,28 @@ namespace EasePass.Views
 
             this.input = input;
             notesTB.Text = input.Notes;
-            pwTB.Password = input.Password;
-            emailTB.Text = input.Email;
-            usernameTB.Text = input.Username;
-            nameTB.Text = input.DisplayName;
-            websiteTB.Text = input.Website;
+            pwTB.Password = new string(input.Password);
+            emailTB.Text = new string(input.Email);
+            usernameTB.Text = new string(input.Username);
+            nameTB.Text = new string(input.DisplayName);
+            websiteTB.Text = new string(input.Website);
 
-            if (!string.IsNullOrEmpty(input.Secret))
+            if (!input.Secret.IsNullOrEmpty())
             {
-                secretTB.Password = input.Secret;
-                digitsTB.Text = input.Digits;
-                intervalTB.Text = input.Interval;
+                secretTB.Password = new string(input.Secret);
+                digitsTB.Text = input.Digits.ToString();
+                intervalTB.Text = input.Interval.ToString();
                 algorithmTB.SelectedItem = input.Algorithm;
             }
             else
+            {
                 Hide2FA();
+            }
 
             if (scroll.VerticalScrollBarVisibility == ScrollBarVisibility.Visible)
+            {
                 scroll.Padding = new Microsoft.UI.Xaml.Thickness(0, 0, 13, 0);
+            }
         }
 
         public PasswordManagerItem GetValue()
@@ -75,31 +81,37 @@ namespace EasePass.Views
                 input = new PasswordManagerItem();
 
             input.Notes = notesTB.Text;
-            input.Password = pwTB.Password;
-            input.Email = emailTB.Text;
-            input.Username = usernameTB.Text;
-            input.DisplayName = nameTB.Text;
-            input.Website = websiteTB.Text;
+            input.Password = pwTB.Password.ToCharArray();
+            input.Email = emailTB.Text.ToCharArray();
+            input.Username = usernameTB.Text.ToCharArray();
+            input.DisplayName = nameTB.Text.ToCharArray();
+            input.Website = websiteTB.Text.ToCharArray();
 
-            input.Secret = secretTB.Password;
-            input.Digits = digitsTB.Text;
-            input.Interval = intervalTB.Text;
-            input.Algorithm = (string)algorithmTB.SelectedItem;
+            input.Secret = secretTB.Password.ToCharArray();
+            input.Digits = Convert.ToInt32(digitsTB.Text,6);
+            input.Interval = Convert.ToInt32(intervalTB.Text.Length);
+            if (Enum.TryParse<HashMode>((string)algorithmTB.SelectedItem, true, out HashMode mode))
+            {
+                input.Algorithm = mode;
+            }
 
-
-            if (pwTB.Password.Length > 0 && !(pe(pwTB.Password) == 0 || (isEditMode && pe(pwTB.Password) == 1))) InfoMessages.PasswordAlreadyUsed();
-
+            if (pwTB.Password.Length > 0 && !(pe(pwTB.Password) == 0 || (isEditMode && pe(pwTB.Password) == 1)))
+            {
+                InfoMessages.PasswordAlreadyUsed();
+            }
             return input;
         }
 
         private void DigitsTB_TextChanged(object sender, TextBoxTextChangingEventArgs e)
         {
-            string digits = digitsTB.Text;
+            ReadOnlySpan<char> digits = digitsTB.Text;
             string newDigits = "";
             for (int i = 0; i < digits.Length; i++)
             {
                 if (char.IsDigit(digits[i]))
+                {
                     newDigits += digits[i];
+                }
             }
             digitsTB.Text = newDigits;
             digitsTB.SelectionStart = digitsTB.Text.Length;
@@ -107,12 +119,14 @@ namespace EasePass.Views
 
         private void IntervalTB_TextChanged(object sender, TextBoxTextChangingEventArgs e)
         {
-            string interval = intervalTB.Text;
+            ReadOnlySpan<char> interval = intervalTB.Text;
             string newInterval = "";
             for (int i = 0; i < interval.Length; i++)
             {
                 if (char.IsDigit(interval[i]))
+                {
                     newInterval += interval[i];
+                }
             }
             intervalTB.Text = newInterval;
             intervalTB.SelectionStart = intervalTB.Text.Length;

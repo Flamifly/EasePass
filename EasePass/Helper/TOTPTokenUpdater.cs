@@ -14,6 +14,7 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 */
 
+using EasePass.Extensions;
 using EasePass.Models;
 using EasePass.Views;
 using Microsoft.UI.Xaml;
@@ -44,7 +45,7 @@ namespace EasePass.Helper
             if (selectedItem == null)
                 return;
 
-            if (string.IsNullOrEmpty(selectedItem.Secret))
+            if (selectedItem.Secret.IsNullOrEmpty())
                 return;
 
             totpTB.Text = await generateCurrent(selectedItem);
@@ -54,10 +55,10 @@ namespace EasePass.Helper
         {
             string token = TOTP.GenerateTOTPToken(
                 await NTPClient.GetTime(),
-                item.Secret,
-                ConvertHelper.ToInt(item.Digits, 6),
-                ConvertHelper.ToInt(item.Interval, 30),
-                TOTP.StringToHashMode(item.Algorithm)
+                new string (item.Secret),
+                item.Digits,
+                item.Interval,
+                item.Algorithm
                 );
 
             string final = "";

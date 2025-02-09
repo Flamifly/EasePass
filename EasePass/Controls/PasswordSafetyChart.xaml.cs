@@ -22,6 +22,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using System;
 using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -108,7 +109,7 @@ namespace EasePass.Controls
             info_right.Height = chartHeight;
         }
 
-        private bool CheckPasswordAlreadyUsed(string password, bool existingSingleTime)
+        private bool CheckPasswordAlreadyUsed(ReadOnlySpan<char> password, bool existingSingleTime)
         {
             if (Database.LoadedInstance.Items == null)
                 return false;
@@ -116,7 +117,10 @@ namespace EasePass.Controls
             int amount = 0;
             for (int i = 0; i < Database.LoadedInstance.Items.Count; i++)
             {
-                if (Database.LoadedInstance.Items[i].Password == password) amount++;
+                if (Database.LoadedInstance.Items[i].Password == password)
+                {
+                    amount++;
+                }
             }
             return amount < (existingSingleTime ? 2 : 1);
         }

@@ -35,9 +35,9 @@ namespace EasePass.Views
                 return;
 
             this.input = input;
-            secretTB.Password = input.Secret;
-            digitsTB.Text = input.Digits;
-            intervalTB.Text = input.Interval;
+            secretTB.Password = new string(input.Secret);
+            digitsTB.Text = input.Digits.ToString();
+            intervalTB.Text = input.ToString();
             algorithmTB.SelectedItem = input.Algorithm;
         }
 
@@ -46,10 +46,13 @@ namespace EasePass.Views
             if (input == null)
                 input = new PasswordManagerItem();
 
-            input.Secret = secretTB.Password;
-            input.Digits = digitsTB.Text;
-            input.Interval = intervalTB.Text;
-            input.Algorithm = (string)algorithmTB.SelectedItem;
+            input.Secret = secretTB.Password.ToCharArray();
+            input.Digits = Convert.ToInt32(digitsTB.Text, 6);
+            input.Interval = Convert.ToInt32(intervalTB.Text, 30);
+            if (Enum.TryParse<HashMode>((string)algorithmTB.SelectedItem, true, out HashMode mode))
+            {
+                input.Algorithm = mode;
+            }
         }
 
         private void DigitsTB_TextChanged(object sender, TextBoxTextChangingEventArgs e)

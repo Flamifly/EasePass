@@ -231,7 +231,7 @@ namespace EasePass.Helper
         /// 5. Number
         /// 6. Common Sequence
         /// </remarks>
-        public static bool[] EvaluatePassword(string password)
+        public static bool[] EvaluatePassword(ReadOnlySpan<char> password)
         {
             bool[] checks = new bool[6];
             var (includeUpper, includeLower, includeSpecial, includeNumber) = GetAllowedIncludes(password);

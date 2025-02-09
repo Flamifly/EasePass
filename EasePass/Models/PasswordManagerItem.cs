@@ -14,6 +14,7 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 */
 
+using EasePass.Extensions;
 using EasePass.Helper;
 using EasePass.Settings;
 using Microsoft.UI.Xaml;
@@ -24,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using Windows.UI;
@@ -33,40 +33,40 @@ namespace EasePass.Models
 {
     public class PasswordManagerItem : INotifyPropertyChanged
     {
-        private string _Password;
-        public string Password { get => _Password; set { _Password = value; NotifyPropertyChanged("Password"); } }
-        private string _Username;
-        public string Username { get => _Username; set { _Username = value; NotifyPropertyChanged("Username"); } }
+        private char[] _Password;
+        public char[] Password { get => _Password; set { _Password = value; NotifyPropertyChanged("Password"); } }
+        private char[] _Username;
+        public char[] Username { get => _Username; set { _Username = value; NotifyPropertyChanged("Username"); } }
 
-        private string _Email;
-        public string Email { get => _Email; set { _Email = value; NotifyPropertyChanged("Email"); } }
+        private char[] _Email;
+        public char[] Email { get => _Email; set { _Email = value; NotifyPropertyChanged("Email"); } }
 
         private string _Notes;
         public string Notes { get => _Notes; set { _Notes = value; NotifyPropertyChanged("Notes"); } }
 
-        private string _Secret;
-        public string Secret { get => _Secret; set { _Secret = value; NotifyPropertyChanged("Secret"); } }
-        public string Digits { get; set; } = "6";
-        public string Interval { get; set; } = "30";
-        public string Algorithm { get; set; } = "SHA1";
+        private char[] _Secret;
+        public char[] Secret { get => _Secret; set { _Secret = value; NotifyPropertyChanged("Secret"); } }
+        public int Digits { get; set; } = 6;
+        public int Interval { get; set; } = 30;
+        public HashMode Algorithm { get; set; } = HashMode.SHA1;
         public List<string> Clicks { get; } = new List<string>();
         [JsonIgnore]
-        private string _DisplayName;
-        public string DisplayName
+        private char[] _DisplayName;
+        public char[] DisplayName
         {
             get => _DisplayName;
             set
             {
                 _DisplayName = value;
-                FirstChar = value?.Length == 0 ? "" : value.Substring(0, 1);
+                FirstChar = value?.Length == 0 ? (char)32 : value[0];
                 NotifyPropertyChanged("DisplayName");
                 NotifyPropertyChanged("Website");
                 NotifyPropertyChanged("FirstChar");
             }
         }
         [JsonIgnore]
-        private string _Website = "";
-        public string Website
+        private char[] _Website = Array.Empty<char>();
+        public char[] Website
         {
             get => _Website;
             set
@@ -81,15 +81,16 @@ namespace EasePass.Models
                     return;
                 }
 
-                if (string.IsNullOrEmpty(_Website))
+                if (_Website.IsNullOrEmpty())
                 {
                     Icon = null;
                     NotifyPropertyChanged("Icon");
                     return;
                 }
 
-                if (!_Website.ToLower().StartsWith("http"))
-                    _Website = "http://" + _Website;
+
+                if (!_Website.StartsWith("http"))
+                    _Website = _Website.AddStart("http://");
 
                 try
                 {
@@ -136,7 +137,7 @@ namespace EasePass.Models
             }
         }
         [JsonIgnore]
-        public string FirstChar = "";
+        public char FirstChar { get; set; } = (char)32;
         [JsonIgnore]
         public bool ShowIcon =>  AppSettings.ShowIcons;
 

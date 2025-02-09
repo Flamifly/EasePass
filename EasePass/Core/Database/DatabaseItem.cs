@@ -173,9 +173,20 @@ namespace EasePass.Core.Database
         #endregion
 
         #region FindItemsByName
-        public ObservableCollection<PasswordManagerItem> FindItemsByName(string name)
+        public ObservableCollection<PasswordManagerItem> FindItemsByName(ReadOnlySpan<char> name)
         {
-            return new ObservableCollection<PasswordManagerItem>(Items.Where(x => x.DisplayName.Contains(name, StringComparison.OrdinalIgnoreCase)));
+            ObservableCollection<PasswordManagerItem> collection = new ObservableCollection<PasswordManagerItem>();
+            int length = Items.Count;
+            for (int i = 0; i < length; i++)
+            {
+                PasswordManagerItem item = Items[i];
+                ReadOnlySpan<char> temp = item.DisplayName;
+                if (temp.Contains(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    collection.Add(item);
+                }
+            }
+            return collection;
         }
         #endregion
 
@@ -301,7 +312,7 @@ namespace EasePass.Core.Database
         /// </summary>
         /// <param name="password">The Password, which should be checked</param>
         /// <returns>Returns <see langword="true"/> if the <paramref name="password"/> already exist, otherwise <see langword="false"/> will be returned</returns>
-        public bool PasswordAlreadyExists(string password)
+        public bool PasswordAlreadyExists(ReadOnlySpan<char> password)
         {
             int length = Items.Count;
             for (int i = 0; i < length; i++)
@@ -316,7 +327,13 @@ namespace EasePass.Core.Database
         /// </summary>
         /// <param name="password">The Password, which occurence should be checked</param>
         /// <returns>Returns the amount of occurences in the Database</returns>
-        public int GetPasswordOccurence(string password)
+        public int GetPasswordOccurence(string password) => GetPasswordOccurence(password);
+        /// <summary>
+        /// Gets the amount of Occurences of the given <paramref name="password"/> in the Database
+        /// </summary>
+        /// <param name="password">The Password, which occurence should be checked</param>
+        /// <returns>Returns the amount of occurences in the Database</returns>
+        public int GetPasswordOccurence(ReadOnlySpan<char> password)
         {
             int count = 0;
             int length = Items.Count;
@@ -365,7 +382,6 @@ namespace EasePass.Core.Database
                     Items.Add(item);
                 }
             }
-
             CallPropertyChanged("Items");
         }
 

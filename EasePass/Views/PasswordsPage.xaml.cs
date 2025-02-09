@@ -178,7 +178,7 @@ namespace EasePass.Views
             if (totpTokenUpdater != null)
                 totpTokenUpdater.StopTimer();
 
-            if (!string.IsNullOrEmpty(SelectedItem.Secret))
+            if (!SelectedItem.Secret.IsNullOrEmpty())
             {
                 totpTokenUpdater = new TOTPTokenUpdater(SelectedItem, totpTB);
                 totpTokenUpdater.StartTimer();
@@ -195,11 +195,11 @@ namespace EasePass.Views
 
             try
             {
-                TOTP.GenerateTOTPToken(DateTime.Now, item.Secret, Convert.ToInt32(item.Digits), Convert.ToInt32(item.Interval), TOTP.StringToHashMode(item.Algorithm));
+                TOTP.GenerateTOTPToken(DateTime.Now, new string (item.Secret), item.Digits, item.Interval, item.Algorithm);
             }
             catch
             {
-                item.Secret = "";
+                item.Secret = Array.Empty<char>();
                 InfoMessages.Invalid2FA();
             }
 

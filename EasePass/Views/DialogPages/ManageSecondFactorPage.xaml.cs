@@ -18,7 +18,6 @@ using EasePass.Core.Database.Enums;
 using EasePass.Core.Database.Format.Serialization;
 using EasePass.Extensions;
 using EasePass.Helper.Security;
-using EasePassExtensibility;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Security;
@@ -85,11 +84,10 @@ namespace EasePass.Views
                 if (combo.SelectedValue == null)
                     return;
 
-                try
+                if (Enum.TryParse<SecondFactorType>((string)secondFactorTypeTB.SelectedValue, true, out SecondFactorType result))
                 {
-                    Settings.SecondFactorType = (SecondFactorType)Enum.Parse(typeof(SecondFactorType), (string)secondFactorTypeTB.SelectedValue);
+                    Settings.SecondFactorType = (SecondFactorType)result;
                 }
-                catch { }
             }
         }
     }

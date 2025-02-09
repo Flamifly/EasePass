@@ -126,14 +126,14 @@ namespace EasePass.Helper
             return cm / 2.54f;
         }
 
-        private static (string name, string body) BuildServiceString(PasswordManagerItem item)
+        private static (char[] name, string body) BuildServiceString(PasswordManagerItem item)
         {
             StringBuilder sb = new StringBuilder();
-            if (!string.IsNullOrEmpty(item.Username)) sb.AppendLine("Username:".Localized("PrintDB_Username/Text") + " " + item.Username);
-            if (!string.IsNullOrEmpty(item.Email)) sb.AppendLine("E-Mail:".Localized("PrintDB_Email/Text") + " " + item.Email);
-            if (!string.IsNullOrEmpty(item.Password)) sb.AppendLine("Password:".Localized("PrintDB_Password/Text") + " " + item.Password);
-            if (!string.IsNullOrEmpty(item.Website)) sb.AppendLine("Website:".Localized("PrintDB_Website/Text") + " " + item.Website);
-            if (!string.IsNullOrEmpty(item.Secret))
+            if (!item.Username.IsNullOrEmpty()) sb.AppendLine("Username:".Localized("PrintDB_Username/Text") + " " + item.Username);
+            if (!item.Email.IsNullOrEmpty()) sb.AppendLine("E-Mail:".Localized("PrintDB_Email/Text") + " " + item.Email);
+            if (!item.Password.IsNullOrEmpty()) sb.AppendLine("Password:".Localized("PrintDB_Password/Text") + " " + item.Password);
+            if (!item.Website.IsNullOrEmpty()) sb.AppendLine("Website:".Localized("PrintDB_Website/Text") + " " + item.Website);
+            if (!item.Secret.IsNullOrEmpty())
             {
                 sb.AppendLine("TOTP-Secret:".Localized("PrintDB_TOTPSecret/Text") + " " + item.Secret);
                 sb.AppendLine("TOTP-Algorithm:".Localized("PrintDB_TOTPAlgorithm/Text") + " " + item.Algorithm);
@@ -153,10 +153,10 @@ namespace EasePass.Helper
 
         private static (bool status, Bitmap qrCode) CreateQrCodeFrom2FA(PasswordManagerItem item)
         {
-            if (string.IsNullOrEmpty(item.Secret))
+            if (item.Secret.IsNullOrEmpty())
                 return (false, null);
 
-            string codeContent = TOTP.EncodeUrl(item.DisplayName, string.IsNullOrEmpty(item.Username) ? item.Email : item.Username, item.Secret, TOTP.StringToHashMode(item.Algorithm), Convert.ToInt32(item.Digits), Convert.ToInt32(item.Interval));
+            string codeContent = TOTP.EncodeUrl(new string(item.DisplayName), item.Username.IsNullOrEmpty() ? new string (item.Email) : new string(item.Username), new string(item.Secret), item.Algorithm, item.Digits, item.Interval);
 
             QrCodeEncodingOptions options = new QrCodeEncodingOptions()
             {

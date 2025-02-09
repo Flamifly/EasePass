@@ -1,8 +1,9 @@
 ﻿using EasePass.Core.Database.Format.Serialization;
 using EasePass.Models;
-using System.Collections.ObjectModel;
+using EasePass.Core.Database.Format.epdb.v1.Serialization;
 using System.Security;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace EasePass.Core.Database.Format.epdb.v1
 {
