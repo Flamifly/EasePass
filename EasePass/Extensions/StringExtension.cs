@@ -14,6 +14,7 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 */
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.Security;
 
@@ -24,6 +25,7 @@ namespace EasePass.Extensions;
 /// </summary>
 public static class StringExtension
 {
+    #region Convert
     /// <summary>
     /// Converts the given <paramref name="value"/> to a <see cref="byte"/>[]
     /// </summary>
@@ -39,8 +41,47 @@ public static class StringExtension
     /// </summary>
     /// <param name="plainString">The <see cref="string"/>, which should be converted</param>
     /// <returns>Returns the <paramref name="plainString"/> as <see cref="SecureString"/></returns>
-    public static SecureString ConvertToSecureString(this string plainString)
+    public static SecureString ConvertToSecureString(this string value)
     {
-        return plainString.AsSpan().ConvertToSecureString();
+        SecureString secureString;
+        unsafe
+        {
+            fixed (char* chars = value)
+            {
+                //create encrypted secure string object
+                secureString = new SecureString(chars, value.Length);
+                secureString.MakeReadOnly();
+                value.ZeroOut();
+            }
+        }
+        return secureString;
     }
+    #endregion
+
+    #region ZeroOut
+    /// <summary>
+    /// Offers existing String type a safe zeroing out method without returning a SecureString object while taking care
+    /// not to zero out string literals or values that share the same location as a string literal
+    /// Call: myString.SecureClear();
+    /// </summary>
+    /// <param name="value"></param>
+    public static void ZeroOut(this string value)
+    {
+        object checkInterned = string.IsInterned(value);
+        if (checkInterned == null)
+        {
+            unsafe
+            {
+                fixed (char* chars = value)
+                {
+                    //zero out original
+                    for (int i = 0; i < value.Length; i++)
+                    {
+                        chars[i] = '\0';
+                    }
+                }
+            }
+        }
+    }
+    #endregion
 }

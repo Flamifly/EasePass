@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security;
 
 namespace EasePass.Extensions
 {
@@ -123,6 +124,18 @@ namespace EasePass.Extensions
         public static bool StartsWith(this char[] chars, ReadOnlySpan<char> starts)
         {
             return ((ReadOnlySpan<char>)chars).StartsWith(starts);
+        }
+        #endregion
+
+        #region Convert | ToXXX
+        /// <summary>
+        /// Converts the given <paramref name="chars"/> to a <see cref="SecureString"/>
+        /// </summary>
+        /// <param name="chars">The <see cref="char"/>[], which should be converted</param>
+        /// <returns>Returns the <paramref name="chars"/> as <see cref="SecureString"/></returns>
+        public static SecureString ToSecureString(this  char[] chars)
+        {
+            return ((ReadOnlySpan<char>)chars.AsSpan()).ConvertToSecureString();
         }
         #endregion
 

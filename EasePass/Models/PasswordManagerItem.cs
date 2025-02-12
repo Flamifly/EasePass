@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using Windows.UI;
@@ -33,40 +34,40 @@ namespace EasePass.Models
 {
     public class PasswordManagerItem : INotifyPropertyChanged
     {
-        private char[] _Password;
-        public char[] Password { get => _Password; set { _Password = value; NotifyPropertyChanged("Password"); } }
-        private char[] _Username;
-        public char[] Username { get => _Username; set { _Username = value; NotifyPropertyChanged("Username"); } }
+        private SecureString _Password;
+        public SecureString Password { get => _Password; set { _Password = value; NotifyPropertyChanged("Password"); } }
+        private SecureString _Username;
+        public SecureString Username { get => _Username; set { _Username = value; NotifyPropertyChanged("Username"); } }
 
-        private char[] _Email;
-        public char[] Email { get => _Email; set { _Email = value; NotifyPropertyChanged("Email"); } }
+        private SecureString _Email;
+        public SecureString Email { get => _Email; set { _Email = value; NotifyPropertyChanged("Email"); } }
 
-        private string _Notes;
-        public string Notes { get => _Notes; set { _Notes = value; NotifyPropertyChanged("Notes"); } }
+        private SecureString _Notes;
+        public SecureString Notes { get => _Notes; set { _Notes = value; NotifyPropertyChanged("Notes"); } }
 
-        private char[] _Secret;
-        public char[] Secret { get => _Secret; set { _Secret = value; NotifyPropertyChanged("Secret"); } }
+        private SecureString _Secret;
+        public SecureString Secret { get => _Secret; set { _Secret = value; NotifyPropertyChanged("Secret"); } }
         public int Digits { get; set; } = 6;
         public int Interval { get; set; } = 30;
         public HashMode Algorithm { get; set; } = HashMode.SHA1;
         public List<string> Clicks { get; } = new List<string>();
         [JsonIgnore]
-        private char[] _DisplayName;
-        public char[] DisplayName
+        private SecureString _DisplayName;
+        public SecureString DisplayName
         {
             get => _DisplayName;
             set
             {
                 _DisplayName = value;
-                FirstChar = value?.Length == 0 ? (char)32 : value[0];
+                FirstChar = value?.Length == 0 ? (char)32 : value.AsSpan()[0];
                 NotifyPropertyChanged("DisplayName");
                 NotifyPropertyChanged("Website");
                 NotifyPropertyChanged("FirstChar");
             }
         }
         [JsonIgnore]
-        private char[] _Website = Array.Empty<char>();
-        public char[] Website
+        private SecureString _Website;
+        public SecureString Website
         {
             get => _Website;
             set
@@ -94,7 +95,7 @@ namespace EasePass.Models
 
                 try
                 {
-                    CacheItem item = CacheItem.FindInCache(iconCache, _Website);
+                    CacheItem item = CacheItem.FindInCache(iconCache, _Website.AsSpan());
                     if (item != null)
                     {
                         Icon = new BitmapImage(new Uri(item.GetPath()));
@@ -122,7 +123,7 @@ namespace EasePass.Models
             get
             {
                 MD5 md5Hasher = MD5.Create();
-                byte[] bytes = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(DisplayName));
+                byte[] bytes = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(DisplayName.ToCharArray()));
                 return new SolidColorBrush(Color.FromArgb(255, bytes[0], bytes[1], bytes[2]));
             }
         }
@@ -161,7 +162,7 @@ namespace EasePass.Models
 
         private async void IconDownloadImage(CacheItem item, string iconCache)
         {
-            item = CacheItem.Create(iconCache, _Website);
+            item = CacheItem.Create(iconCache, _Website.AsReadOnlySpan());
             if (item == null)
             {
                 Icon = null;
