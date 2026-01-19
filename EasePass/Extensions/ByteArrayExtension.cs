@@ -54,7 +54,6 @@ namespace EasePass.Extensions
             if (iByte % 3 > 0 || iByte % 3 > 1)
             {
                 outBase64Chars[iBase64Chars] = '=';
-                iBase64Chars++;
             }
             return outBase64Chars;
         }

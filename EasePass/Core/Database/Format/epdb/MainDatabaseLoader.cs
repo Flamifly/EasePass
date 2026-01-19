@@ -34,24 +34,30 @@ namespace EasePass.Core.Database.Format.epdb
         public static async Task<(PasswordValidationResult result, DatabaseFile database)> Load(string path, SecureString password, bool showWrongPasswordError)
         {
             if (!File.Exists(path))
+            {
                 return (PasswordValidationResult.DatabaseNotFound, default);
+            }
 
             byte[] pass = HashHelper.HashPasswordWithArgon2id(password, salt);
-
             if (!IDatabaseLoader.DecryptData(IDatabaseLoader.ReadFile(path), pass, showWrongPasswordError, out string data))
+            {
                 return (PasswordValidationResult.WrongPassword, default);
+            }
 
             DatabaseFile database = DatabaseFile.Deserialize(data);
-
+            char[] tempBase64 = pass.ToBase64();
+            database.Password = tempBase64.ConvertToSecureString();
+            tempBase64.ZeroOut();
             if (database == default)
+            {
                 return (PasswordValidationResult.WrongFormat, default);
+            }
 
             if (database.Settings != null && database.Settings.UseSecondFactor)
             {
                 EnterSecondFactorDialog secondFactorDialog = new EnterSecondFactorDialog();
                 await secondFactorDialog.ShowAsync();
 
-                database.SecondFactor = secondFactorDialog.Token;
                 pass = HashHelper.HashPasswordWithArgon2id(secondFactorDialog.Token, salt, associatedData);
             }
             else
@@ -61,6 +67,9 @@ namespace EasePass.Core.Database.Format.epdb
                 pass = HashHelper.HashPasswordWithArgon2id(base64, salt, associatedData);
                 base64.ZeroOut();
             }
+            tempBase64 = pass.ToBase64();
+            database.SecondFactor = tempBase64.ConvertToSecureString();
+            tempBase64.ZeroOut();
 
             if (!IDatabaseLoader.DecryptData(database.Data, pass, showWrongPasswordError, out data))
                 return (PasswordValidationResult.WrongPassword, default);
@@ -71,9 +80,6 @@ namespace EasePass.Core.Database.Format.epdb
 
             database.Items = items;
             database.Data = Array.Empty<byte>();
-
-            //GC.Collect();
-
             return (PasswordValidationResult.Success, database);
         }
 
@@ -84,31 +90,38 @@ namespace EasePass.Core.Database.Format.epdb
             if (database == default)
                 return (PasswordValidationResult.WrongFormat, default);
 
+            char[] tempBase64;
             if (database.Settings.UseSecondFactor)
             {
                 EnterSecondFactorDialog secondFactorDialog = new EnterSecondFactorDialog();
                 await secondFactorDialog.ShowAsync();
 
-                database.SecondFactor = secondFactorDialog.Token;
                 pass = HashHelper.HashPasswordWithArgon2id(secondFactorDialog.Token, salt, associatedData);
+                tempBase64 = pass.ToBase64();
             }
             else
             {
                 char[] base64 = password.ToBytes().ToBase64();
                 Array.Reverse(base64);
                 pass = HashHelper.HashPasswordWithArgon2id(base64, salt, associatedData);
+                tempBase64 = pass.ToBase64();
             }
+            database.SecondFactor = tempBase64.ConvertToSecureString();
+            tempBase64.ZeroOut();
 
             if (!IDatabaseLoader.DecryptData(database.Data, pass, showWrongPasswordError, out string data))
+            {
                 return (PasswordValidationResult.WrongPassword, default);
+            }
 
             ObservableCollection<PasswordManagerItem> items = PasswordManagerItem.DeserializeItems(data);
             if (items == default)
+            {
                 return (PasswordValidationResult.WrongFormat, default);
+            }
 
             database.Items = items;
             database.Data = Array.Empty<byte>();
-
             return default;
         }
         #endregion
@@ -116,7 +129,6 @@ namespace EasePass.Core.Database.Format.epdb
         #region Save
         public static bool Save(string path, SecureString password, SecureString secondFactor, DatabaseSettings settings, ObservableCollection<PasswordManagerItem> items)
         {
-            byte[] data;
             string json = PasswordManagerItem.SerializeItems(items);
             byte[] pass;
             
@@ -125,14 +137,13 @@ namespace EasePass.Core.Database.Format.epdb
                 char[] base64 = password.ToBytes().ToBase64();
                 Array.Reverse(base64);
                 pass = HashHelper.HashPasswordWithArgon2id(base64, salt, associatedData);
-                data = EncryptDecryptHelper.EncryptStringAES(json, pass);
             }
             else
             {
                 pass = HashHelper.HashPasswordWithArgon2id(secondFactor, salt, associatedData);
-                data = EncryptDecryptHelper.EncryptStringAES(json, pass);
             }
 
+            byte[] data = EncryptDecryptHelper.EncryptStringAES(json, pass);
             DatabaseFile database = new DatabaseFile();
             database.DatabaseFileType = Enums.DatabaseFileType.epdb;
             database.Version = Version;

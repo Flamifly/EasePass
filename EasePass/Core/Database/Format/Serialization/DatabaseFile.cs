@@ -39,7 +39,13 @@ namespace EasePass.Core.Database.Format.Serialization
         public ObservableCollection<PasswordManagerItem> Items { get; set; } = null;
 
         /// <summary>
-        /// The SecondFactor for the Database
+        /// The Password of the Database. This Property will be used to update the actual Password with the Hash.
+        /// </summary>
+        [JsonIgnore]
+        public SecureString Password { get; set; } = null;
+
+        /// <summary>
+        /// The SecondFactor for the Database. This Property will be used to set the Second-Factor with the Hash.
         /// </summary>
         [JsonIgnore]
         public SecureString SecondFactor { get; set; } = null;

@@ -116,13 +116,14 @@ namespace EasePass.Core.Database
         public async Task<(PasswordValidationResult result, DatabaseFile database)> CheckPasswordCorrect(SecureString enteredPassword, bool showWrongPasswordError = false)
         {
             if (enteredPassword == null)
+            {
                 return (PasswordValidationResult.WrongPassword, null);
-
+            }
             if (!File.Exists(Path))
+            {
                 return (PasswordValidationResult.DatabaseNotFound, null);
-
-            var result = await DatabaseFormatHelper.Load(Path, enteredPassword, showWrongPasswordError);
-            return result;
+            }
+            return await DatabaseFormatHelper.Load(Path, enteredPassword, showWrongPasswordError);
         }
         #endregion
 
@@ -202,22 +203,22 @@ namespace EasePass.Core.Database
         /// <param name="password">The Password of the Database</param>
         /// <param name="database">The Database, which contains the Settings and the Passwords</param>
         /// <returns>Returns <see langword="true"/> if the <paramref name="database"/> could be loaded</returns>
-        private bool LoadInternal(SecureString password, DatabaseFile database)
+        private bool LoadInternal(DatabaseFile database)
         {
-            if (database == null || password == null)
+            if (database == null)
                 return false;
 
-            MasterPassword = password;
+            MasterPassword = database.Password;
             Items = database.Items;
             Settings = database.Settings;
             SecondFactor = database.SecondFactor;
+            database.Password = null;
             database.SecondFactor = null;
 
             ClearOldClicksCache();
 
             CallPropertyChanged("Items");
             CallPropertyChanged("MasterPassword");
-
             return true;
         }
 
@@ -243,9 +244,9 @@ namespace EasePass.Core.Database
         /// <param name="password">The Password of the Database</param>
         /// <param name="database">The Database, which should be set</param>
         /// <returns>Returns <see langword="true"/> if the Database could be set, otherwise <see langword="false"/>.</returns>
-        public bool Load(SecureString password, DatabaseFile database)
+        public bool Load(DatabaseFile database)
         {
-            if (!LoadInternal(password, database))
+            if (!LoadInternal(database))
                 return false;
 
             // Set the LoadedInstance only if the Password was correct
@@ -272,7 +273,7 @@ namespace EasePass.Core.Database
             return result.result != PasswordValidationResult.WrongPassword
                 && result.result != PasswordValidationResult.WrongFormat
                 && result.result != PasswordValidationResult.WrongPassword
-                && LoadInternal(password, result.database);
+                && LoadInternal(result.database);
         }
         #endregion
 

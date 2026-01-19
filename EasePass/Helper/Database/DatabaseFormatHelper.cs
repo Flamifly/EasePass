@@ -28,6 +28,7 @@ namespace EasePass.Helper.Database
             (PasswordValidationResult result, DatabaseFile database) file;
             if (FileHelper.HasExtension(path, "epeb"))
             {
+                // Load old format and change extension to the new once
                 file = await Core.Database.Format.epeb.MainDatabaseLoader.Load(path, password, showWrongPasswordError);
                 path = Path.ChangeExtension(path, "epdb");
             }
@@ -35,16 +36,19 @@ namespace EasePass.Helper.Database
             {
                 // Do not show an error because we do not know if the Password is for real wrong since it has changed in the new Version
                 file = await Core.Database.Format.epdb.v1.DatabaseLoader.Load(path, password, false);
-                
-                if (file.result == PasswordValidationResult.WrongFormat || file.result == PasswordValidationResult.WrongPassword)
-                    return await Core.Database.Format.epdb.MainDatabaseLoader.Load(path, password, showWrongPasswordError);
+            }
+            if (file.result == PasswordValidationResult.DatabaseNotFound)
+            {
+                return file;
             }
 
+            // Save in new Format
             if (file.result == PasswordValidationResult.Success)
             {
                 Core.Database.Format.epdb.MainDatabaseLoader.Save(path, password, default, file.database.Settings, file.database.Items);
             }
-            return file;
+            // Reload to get the SecondFactor & Password as Hash in the DatabaseFile.
+            return await Core.Database.Format.epdb.MainDatabaseLoader.Load(path, password, showWrongPasswordError);
         }
         #endregion
 

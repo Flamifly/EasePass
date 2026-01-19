@@ -79,7 +79,7 @@ namespace EasePass.Views
                 return false;
             }
 
-            selectedDB.Load(pw, res.database);
+            selectedDB.Load(res.database);
             if (selectedDB.Settings == null)
             {
                 //I somehow got it working, that entering a wrong password for a db,
